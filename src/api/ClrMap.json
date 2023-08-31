@@ -1,0 +1,19 @@
+{
+  "clrMap": [
+    {
+      "regex": "^FY",
+      "bgclr": "#FFA500",
+      "fgclr": "#FFFFFF"
+    },
+    {
+      "regex": "TRNG$",
+      "bgclr": "#b3b3ff",
+      "fgclr": "#FFFFFF"
+    },
+    {
+      "regex": "OFFICE",
+      "bgclr": "#FFFF00",
+      "fgclr": "#FFFFFF"
+    }
+  ]
+}

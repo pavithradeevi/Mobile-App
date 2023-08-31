@@ -1,0 +1,126 @@
+{
+  "project_info": {
+    "project_number": "588698690744",
+    "project_id": "vmzcargoflo",
+    "storage_bucket": "vmzcargoflo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588698690744:android:a42b9680998a821e7a404d",
+        "android_client_info": {
+          "package_name": "com.crewport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Ew0Q9v3OdZRkEFGHKzlmBKeI2YbPSXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588698690744:android:07d11d5e289c79bf7a404d",
+        "android_client_info": {
+          "package_name": "com.eventapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Ew0Q9v3OdZRkEFGHKzlmBKeI2YbPSXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588698690744:android:0fe0bc58bf7cf9c47a404d",
+        "android_client_info": {
+          "package_name": "com.truck_driver_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Ew0Q9v3OdZRkEFGHKzlmBKeI2YbPSXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588698690744:android:e4f17d1f682816457a404d",
+        "android_client_info": {
+          "package_name": "com.vmz_booking_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Ew0Q9v3OdZRkEFGHKzlmBKeI2YbPSXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588698690744-eps8lic4g86stph98dd7phfiemjbmblu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
