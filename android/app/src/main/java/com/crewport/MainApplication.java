@@ -12,7 +12,14 @@ import com.facebook.soloader.SoLoader;
 import com.crewport.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; // Add this line
+import android.app.NotificationManager; // Add this line
+import android.app.NotificationChannel; // Add this line
+import android.os.Build; // Add this line
+
 // import com.AlarmSoundModule;
+
+
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -58,6 +65,16 @@ public class MainApplication extends Application implements ReactApplication {
     ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      NotificationManager notificationManager = getSystemService(NotificationManager.class);
+      NotificationChannel channel = new NotificationChannel(
+        "Crew-Port", // Specify a unique channel ID here
+        "Your Channel Name", // Specify the channel name
+        NotificationManager.IMPORTANCE_HIGH // Specify the importance level
+      );
+      notificationManager.createNotificationChannel(channel);
+    }
+    
   }
 
   /**

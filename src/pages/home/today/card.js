@@ -1,4 +1,4 @@
-import {Image, StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
+import {Image, StyleSheet, Text, View, TouchableOpacity, Alert, Button} from 'react-native';
 import React from 'react';
 import {_colors} from '../../../css/colors';
 import useDefaultTheme from '../../../hooks/useDefaultTheme';
@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { personalDetailsApi } from '../../../api/user/userDetailsApi';
 import { addPersonalDetailsReducer } from '../../../redux/slices/profileSlice';
 import PushNotification from 'react-native-push-notification';
+import BackgroundTimer from 'react-native-background-timer';
 
 
 
@@ -21,11 +22,14 @@ var db = openDatabase({ name: 'CrewportDatabase.db' });
   
 const FlightCard = () => {
   useEffect(() => {
-    async () => {
-      // await getRosterDetailsApi();
+    const initializeDatabase = async () => {
+      await getRosterDetailsApi();
       await initializeDatabaseStructure();
-    }
+    };
+  
+    initializeDatabase();
   }, []);
+  
 
   const [flightNo, setFlightNo] = useState('');
   const [startFrom,setStartFrom] = useState('');
@@ -46,6 +50,11 @@ const FlightCard = () => {
   const [flightDates,setFlightDates] = useState('');
   const [visible,setVisible] = useState('');
   const [checkinvisible,setCheckinVisible] = useState('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [sendNotifications, setSendNotifications] = useState(true);
+  const [isCheckinDisabled, setIsCheckinDisabled] = useState(false);
+  
 
   const navigation=useNavigation();
 
@@ -54,6 +63,12 @@ const FlightCard = () => {
   const handleCheckInPress = () => {
     if (flightNo.startsWith('FY') || flightNo.startsWith('S1') || flightNo.startsWith('S2') || flightNo.startsWith('S3')) {
       navigation.navigate('reportIn');
+    }
+  };
+
+  const handleReportOut = () => {
+    if (flightNo.startsWith('FY') || flightNo.startsWith('S1') || flightNo.startsWith('S2') || flightNo.startsWith('S3')) {
+      navigation.navigate('reportOut');
     }
   };
   const handleMC = () => {
@@ -128,7 +143,7 @@ const FlightCard = () => {
     getRosterDetailsApi();
  
    fetchData();
-   scheduleNotifications();
+ 
   }, []);
 
 
@@ -152,88 +167,74 @@ const FlightCard = () => {
     
   }, [tableStart]);
 
+  console.log(tableStart,"tablestartsss today")
+  
   useEffect(() => {
-    const targetcheckinTime = Array.isArray(tableStart) ? new Date(tableStart[0]) : null;
-    if (targetcheckinTime) {
-      targetcheckinTime.setHours(targetcheckinTime.getHours() - 30);
+    if (Array.isArray(tableStart) && tableStart[0]) {
+      const targetCheckinTime = new Date(tableStart[0]);
+      console.log('targetCheckinTimeTomorrow:', targetCheckinTime);
+
       const currentTime = new Date();
-      setCheckinVisible(currentTime >= targetcheckinTime);
-    }
-    console.log(targetcheckinTime,"targetsss")
-    
-  }, [tableStart]);
+      const disableThreshold = 24;
+      const visibilityThreshold = 30;
+      const disableTime = new Date(targetCheckinTime);
+      disableTime.setHours(disableTime.getHours() - disableThreshold);
+      const visibilityTime = new Date(targetCheckinTime);
+      visibilityTime.setHours(visibilityTime.getHours() - visibilityThreshold);
+      const isWithinRange = currentTime >= visibilityTime && currentTime <= disableTime;
 
-  // const scheduleNotifications = () => {
-  //   const currentTime = new Date();
-  //   const targetCheckinTime = Array.isArray(tableStart) ? new Date(tableStart[0]) : null;
-  
-  //   if (targetCheckinTime) {
-  //     targetCheckinTime.setHours(targetCheckinTime.getHours() - 24);
-  
-  //     if (currentTime >= targetCheckinTime && currentTime < targetCheckinTime + 24 * 60 * 60 * 1000) {
-  //       // Schedule notifications every 1 hour within the 24-hour window
-  //       const numberOfNotifications = Math.floor((currentTime - targetCheckinTime) / (60 * 60 * 1000));
-  //       for (let i = 1; i <= numberOfNotifications; i++) {
-  //         const notificationTime = new Date(targetCheckinTime.getTime() + i * 60 * 60 * 1000);
-         
-  //        alert(currentTime)
-  //         PushNotification.localNotificationSchedule({
-  //           message: `It's time to check in! Click the check-in button.`,
-  //           date: notificationTime,
-  //         });
-  //       }
-  //     }
-  //   }
-  // };
+      setCheckinVisible(isWithinRange);
+      console.log(isWithinRange ? "visible" : "disabled");
 
-  const scheduleNotifications = () => {
-    const currentTime = new Date();
-    const targetCheckinTime = Array.isArray(tableStart) ? new Date(tableStart[0]) : null;
-    
-    if (targetCheckinTime) {
-      targetCheckinTime.setHours(targetCheckinTime.getHours() - 24);
+      // Set the isCheckinDisabled state based on the 24-hour threshold
+      setIsCheckinDisabled(currentTime >= disableTime);
       
+      if (isWithinRange) {
+        const now = new Date().getTime();
 
-  
-if (currentTime >= targetCheckinTime && currentTime < targetCheckinTime + 24 * 60 * 60 * 1000) {
-  alert("calling");
-  console.log('Notification Times:');
-        PushNotification.cancelAllLocalNotifications();
-        console.log('Notification Times:');
-  
-        // Schedule notifications every 5 minutes within the 24-hour window
-        const numberOfNotifications = Math.floor((currentTime - targetCheckinTime) / (5 * 60 * 1000));
-        for (let i = 1; i <= numberOfNotifications; i++) {
-          const notificationTime = new Date(targetCheckinTime.getTime() + i * 5 * 60 * 1000);
-          console.log(notificationTime); 
-          PushNotification.localNotificationSchedule({
-            message: `It's time to check in! Click the check-in button.`,
-            date: notificationTime,
-          });
+        // Calculate the subtracted 30 hours time
+        const subtracted30Hours = new Date(targetCheckinTime);
+        subtracted30Hours.setHours(subtracted30Hours.getHours() - 30);
+
+        // Log the subtracted 30 hours time
+        console.log('Subtracted 30 Hours Time Tmw:', subtracted30Hours);
+
+        // Calculate the next notification time
+        let notificationStartTime = new Date(subtracted30Hours);
+        while (notificationStartTime <= disableTime) {
+          if (notificationStartTime > currentTime) {
+            // Log the next notification time
+            console.log('Next Notification Time Tmw:', notificationStartTime);
+            break; // Exit the loop once the next notification time is logged
+          }
+          notificationStartTime.setHours(notificationStartTime.getHours() + 1); // Increment by 1 hour
         }
+      } else {
+        // If not within the range, cancel any previously scheduled notifications
+        PushNotification.cancelAllLocalNotifications();
       }
     }
-  };
+  }, [tableStart, setIsCheckedIn]);
+  
+  
   const handleCheckIn = () => {
-    // Handle the check-in button click
-    if (checkinvisible) {
-      // Show a success alert message
-      Alert.alert('Success', 'You have successfully checked in!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            setCheckinVisible(false); 
-           
-          },
+    setIsCheckedIn(true);
+  
+    Alert.alert('Check-In Done', 'You have successfully checked in.', [
+      {
+        text: 'OK',
+        onPress: () => {
+          // Hide the "Check-in" button when the alert is dismissed
+          setCheckinVisible(false);
+          // Cancel any previously scheduled notifications
+          PushNotification.cancelAllLocalNotifications();
         },
-      ]);
-    } else {
-      // User clicked the button before the 30-hour window, handle accordingly
-      Alert.alert('Error', 'You can only check in within 30 hours of the flight.');
-    }
+      },
+    ]);
   };
   
- 
+
+
   const end = Array.isArray(tableEnd) ? tableEnd.map((date) => {
     const formattedDate = new Date(date).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -264,7 +265,7 @@ if (currentTime >= targetCheckinTime && currentTime < targetCheckinTime + 24 * 6
           minuteDiff += 60;
         }
         if (hourDiff < 0) {
-          hourDiff += 24; // Assuming a 24-hour clock
+          hourDiff += 24; 
         }
   
         const formattedDiff = `${(hourDiff < 0 ? '-' : '')}${Math.abs(hourDiff).toString().padStart(2, '0')}h${Math.abs(minuteDiff).toString().padStart(2, '0')}m`;
@@ -371,11 +372,16 @@ if (currentTime >= targetCheckinTime && currentTime < targetCheckinTime + 24 * 6
         <View style={styles.box}>
           <Text style={styles.flight}>{flightNo}</Text>
         </View>
-      {
+
+       
+        
+  
+       {
         checkinvisible && flightNo.startsWith('FY') || (flightNo.startsWith('S3')) || (flightNo.startsWith('S2')) || (flightNo.startsWith('S1')) ?(
                 <>
                 <TouchableOpacity   
                 onPress={handleCheckIn}  
+                disabled={isCheckedIn || isCheckinDisabled}
                 style={[styles.box, styles.button]}>
                 <Text style={styles.buttonText}>Check-in</Text>
                 </TouchableOpacity>
@@ -383,13 +389,20 @@ if (currentTime >= targetCheckinTime && currentTime < targetCheckinTime + 24 * 6
         ):null
       }
         <View style={{ flexDirection: 'row' }}>
+        
         {visible && flightNo.startsWith('FY') || (flightNo.startsWith('S3')) || (flightNo.startsWith('S2')) || (flightNo.startsWith('S1')) ?(
     <>
       <TouchableOpacity 
       onPress={() => handleCheckInPress()}
       style={[styles.box, styles.button, { marginLeft: 10 }]}>
-        <Text style={styles.buttonText}>Report</Text>
+        <Text style={styles.buttonText}>RIn</Text>
       </TouchableOpacity>
+      <TouchableOpacity 
+      onPress={()=>handleReportOut()}
+      style={[styles.box, styles.button, { marginLeft: 10 }]}>
+        <Text style={styles.buttonText}>ROut</Text>
+      </TouchableOpacity>
+      
       <TouchableOpacity   
   onPress={()=>handleMC()}  
       style={[styles.box, styles.button, { marginLeft: 10 }]}>

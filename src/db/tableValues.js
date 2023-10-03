@@ -34,4 +34,12 @@ export const TABLE_VALUES = {
     createdDate: '2022-12-28T05:46:52.601Z',
     modifiedDate: '2022-12-28T05:46:52.601Z',
   },
+  navdata_details:{
+    fixId: 'string',
+    iataCode:'string',
+    latRad: 'number',
+    lonRad: 'number',
+    modifiedDate: "2006-01-01T00:00:00"
+  }
+ 
 };

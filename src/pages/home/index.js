@@ -1,7 +1,7 @@
-import { getRosterDetailsApi } from '../../api/roster/rosterDetailsApi';
+
+import { openDatabase } from 'react-native-sqlite-storage';
 import HomeScrn from './homeScrn';
 
-getRosterDetailsApi();
 
 
 export default HomeScrn;

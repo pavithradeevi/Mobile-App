@@ -12,7 +12,7 @@ import { convertTimeToMSD } from '../timeUtlize';
 import { getRosterDetailsApi } from '../../../api/roster/rosterDetailsApi';
 import { initializeDatabaseStructure } from '../../../db/initializeDatabaseStructure';
 import { useNavigation } from '@react-navigation/native';
-
+import PushNotification from 'react-native-push-notification';
 
 
 
@@ -46,7 +46,12 @@ const TomorrowMSD = () => {
   const [dutyEnd,setDutyEnd] = useState('');
   const [flightDates,setFlightDates] = useState('');
   const [visible,setVisible] = useState('');
-  const [selectedLocation,setSelectedLocation] = useState('')
+  const [checkinvisible,setCheckinVisible] = useState('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [sendNotifications, setSendNotifications] = useState(true);
+  const [selectedLocation,setSelectedLocation] = useState('');
+  const [isCheckinDisabled, setIsCheckinDisabled] = useState(false);
 
   const navigation=useNavigation();
 
@@ -55,6 +60,12 @@ const TomorrowMSD = () => {
   const handleCheckInPress = () => {
     if (flightNo.startsWith('FY') || flightNo.startsWith('S1') || flightNo.startsWith('S2') || flightNo.startsWith('S3')) {
       navigation.navigate('reportIn');
+    }
+  };
+
+  const handleReportOut = () => {
+    if (flightNo.startsWith('FY') || flightNo.startsWith('S1') || flightNo.startsWith('S2') || flightNo.startsWith('S3')) {
+      navigation.navigate('reportouttmw');
     }
   };
 
@@ -163,6 +174,72 @@ const TomorrowMSD = () => {
     }
     // console.log(targetTime,"targetsss")
   }, [tableStart]);
+
+  
+  useEffect(() => {
+    if (Array.isArray(tableStart) && tableStart[0]) {
+      const targetCheckinTime = new Date(tableStart[0]);
+      console.log('targetCheckinTimetoday:', targetCheckinTime);
+
+      const currentTime = new Date();
+      const disableThreshold = 24;
+      const visibilityThreshold = 30;
+      const disableTime = new Date(targetCheckinTime);
+      disableTime.setHours(disableTime.getHours() - disableThreshold);
+      const visibilityTime = new Date(targetCheckinTime);
+      visibilityTime.setHours(visibilityTime.getHours() - visibilityThreshold);
+      const isWithinRange = currentTime >= visibilityTime && currentTime <= disableTime;
+
+      setCheckinVisible(isWithinRange);
+      console.log(isWithinRange ? "visible" : "disabled");
+
+      // Set the isCheckinDisabled state based on the 24-hour threshold
+      setIsCheckinDisabled(currentTime >= disableTime);
+      
+      if (isWithinRange) {
+        const now = new Date().getTime();
+
+        // Calculate the subtracted 30 hours time
+        const subtracted30Hours = new Date(targetCheckinTime);
+        subtracted30Hours.setHours(subtracted30Hours.getHours() - 30);
+
+        // Log the subtracted 30 hours time
+        console.log('Subtracted 30 Hours Time:', subtracted30Hours);
+
+        // Calculate the next notification time
+        let notificationStartTime = new Date(subtracted30Hours);
+        while (notificationStartTime <= disableTime) {
+          if (notificationStartTime > currentTime) {
+            // Log the next notification time
+            console.log('Next Notification Time:', notificationStartTime);
+            break; // Exit the loop once the next notification time is logged
+          }
+          notificationStartTime.setHours(notificationStartTime.getHours() + 1); // Increment by 1 hour
+        }
+      } else {
+        // If not within the range, cancel any previously scheduled notifications
+        PushNotification.cancelAllLocalNotifications();
+      }
+    }
+  }, [tableStart, setIsCheckedIn]);
+  
+  
+  const handleCheckIn = () => {
+    setIsCheckedIn(true);
+  
+    Alert.alert('Check-In Done', 'You have successfully checked in.', [
+      {
+        text: 'OK',
+        onPress: () => {
+          // Hide the "Check-in" button when the alert is dismissed
+          setCheckinVisible(false);
+          // Cancel any previously scheduled notifications
+          PushNotification.cancelAllLocalNotifications();
+        },
+      },
+    ]);
+  };
+
  
   const end = Array.isArray(tableEnd) ? tableEnd.map((date) => {
     const msdDate = convertTimeToMSD(new Date(date));
@@ -294,17 +371,32 @@ const formattedPatternEndTime = convertDateTimeFormat(dutyEnd);
           <Text style={styles.flight}>{flightNo}</Text>
         </View>
 
+        {
+          checkinvisible && flightNo.startsWith('FY') || (flightNo.startsWith('S3')) || (flightNo.startsWith('S2')) || (flightNo.startsWith('S1')) ?(
+                  <>
+                  <TouchableOpacity   
+                  onPress={handleCheckIn}  
+                  disabled={isCheckedIn}
+                  style={[styles.box, styles.button]}>
+                  <Text style={styles.buttonText}>Check-in</Text>
+                  </TouchableOpacity>
+                  </>
+          ):null
+        }
+
         <View style={{ flexDirection: 'row' }}>
           {visible && flightNo.startsWith('FY') || (flightNo.startsWith('S3')) || (flightNo.startsWith('S2')) || (flightNo.startsWith('S1')) ?(
       <>
-      <TouchableOpacity     
-      style={[styles.box, styles.button]}>
-      <Text style={styles.buttonText}>Check-in</Text>
-    </TouchableOpacity>
+      
         <TouchableOpacity 
         onPress={() => handleCheckInPress()}
         style={[styles.box, styles.button, { marginLeft: 10 }]}>
-          <Text style={styles.buttonText}>Report</Text>
+          <Text style={styles.buttonText}>RIn</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+        onPress={() => handleReportOut()}
+        style={[styles.box, styles.button, { marginLeft: 10 }]}>
+          <Text style={styles.buttonText}>ROut</Text>
         </TouchableOpacity>
         <TouchableOpacity  
         onPress={()=>handleMC()}   

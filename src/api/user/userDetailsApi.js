@@ -3,12 +3,14 @@ import {Axios} from '../config';
 import {apiKeys} from '../endPoints';
 
 export const personalDetailsApi = async userName => {
+  console.log("personal")
   try {
     const response = await Axios.get(
-      apiKeys.personalDetailsKey + userName + '?ModifiedDate=08/31/2022',
+      apiKeys.personalDetailsKey + userName + '?ModifiedDate=10/30/2022',
     );
+    console.log(response,"responseee")
     const Data = response.data;
-    // console.log("data 0000000000000000000000",Data);
+    console.log("data 0000000000000000000000nnnnn",Data);
     await AsyncStorage.setItem('@userId', Data?.empCode);
     return {data: Data, message: ''};
   } catch (error) {

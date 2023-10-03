@@ -1,30 +1,16 @@
+// InitializeNotifications.js
 import PushNotification from 'react-native-push-notification';
 
-// Create a function to initialize the notification channel
-const initializeNotificationChannel = () => {
+export const initializeNotifications = () => {
   PushNotification.createChannel(
     {
-      channelId: 'your-channel-id',
-      channelName: 'Your Channel Name',
-      channelDescription: 'Your Channel Description',
-      playSound: true,
-      soundName: 'my_sound.mp3',
+      channelId: 'check-in-reminders',
+      channelName: 'Check-In Reminders Channel',
+      channelDescription: 'Channel for check-in reminders',
+      soundName: 'default',
       importance: 4,
+      vibrate: true,
     },
     (created) => console.log(`Notification channel created: ${created}`)
   );
 };
-
-// Create a function to send a notification
-const sendPushNotification = () => {
-  PushNotification.localNotification({
-    /* other options */
-    channelId: 'your-channel-id',
-    title: 'Notification Title',
-    message: 'This is your notification message',
-    soundName: 'my_sound.mp3',
-    playSound: true,
-  });
-};
-
-export { initializeNotificationChannel, sendPushNotification };

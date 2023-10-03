@@ -11,6 +11,7 @@ import {
 } from '../services/notifications/localNotification';
 import {AddNotificationAction} from '../redux/slices/notificationSlice';
 
+
 const Routes = props => {
   const Dispatch = useDispatch();
   const {notify} = useSelector(_state => _state);
@@ -18,6 +19,7 @@ const Routes = props => {
   const [notificationDetails, setnotificationDetails] = useState();
 
   console.log(notify, 'notify');
+ 
   const checkUser = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@user');

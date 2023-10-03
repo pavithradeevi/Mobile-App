@@ -8,41 +8,46 @@ import ToggleSwitch from '../home/switchMode';
 import { AppContext } from '../../appContext';
 
 const RosterScrn = () => {
-  const { showMst } = useContext(AppContext);
-  const [crewCode,setCrewCode] = useState();
-  const [patternNo,setPatternNo] = useState();
- 
-
+ const { showMst } = useContext(AppContext);
+  const [crewCodes, setCrewCode] = useState();
+  const [monthText, setMonthText] = useState('');
 
   useEffect(() => {
     const db = SQLite.openDatabase({ name: 'CrewportDatabase.db', location: 'default' });
-  
+
     const query = `
-    SELECT crewCode, crewDesig, flightDate, patternNo, flightNo, deptTime, arrTime, startFrom, endsAt,
-    flightFrom, flightTo, restPeriod, aircraftType, patternStTime, patternEndTime, id, isVoilated, voilationReason,
-    reptIn, reptOut, createdDate, modifiedDate FROM roster_details
-    WHERE strftime('%Y-%m', flightDate) = strftime('%Y-%m', 'now', 'localtime')
+      SELECT crewCode, crewDesig, flightDate, patternNo, flightNo, deptTime, arrTime, startFrom, endsAt,
+          flightFrom, flightTo, restPeriod, aircraftType, patternStTime, patternEndTime, id, isVoilated, voilationReason,
+          reptIn, reptOut, createdDate, modifiedDate,
+          strftime('%Y', flightDate) AS year,
+          strftime('%m', flightDate) AS month
+      FROM roster_details
+      WHERE strftime('%Y-%m', flightDate) = strftime('%Y-%m', 'now', 'localtime')
     `;
-  
+
     db.transaction((tx) => {
       tx.executeSql(query, [], (_, { rows }) => {
-        setTableData(rows.raw());
-        if (rows.length > 0) {
-          const crewCode = rows.item(0).crewCode;
-          const patternNo = rows.item(0).patternNo;
-          console.log(crewCode,"crewcode")
-          alert(crewCode)
-          // Set the crew code from the query result
+        for (let i = 0; i < rows.length; i++) {
+          const crewCode = rows.item(i).crewCode;
+          const year = rows.item(i).year;
+          const month = rows.item(i).month;
+          console.log(`Fetching data for ${getMonthName(month)} ${year}`);
+
           setCrewCode(crewCode);
-          setPatternNo(patternNo);
-          alert(patternNo)
+          setMonthText(`${getMonthName(month)} ${year}`);
         }
       });
     });
   }, []);
- 
-  
 
+
+  function getMonthName(month) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[parseInt(month, 10) - 1];
+  }
 
   return (
     <View>
@@ -65,9 +70,9 @@ const RosterScrn = () => {
      
    </View>
    <View style={styles.row}>
-     <Text style={styles.value}>{crewCode}Mohammed Hussain</Text>
-     <Text style={styles.value}> SZB</Text>
- <Text style={styles.value}> 01/08/2023 - 31/08/2023</Text>
+     <Text style={styles.value}>{crewCodes}</Text>
+     <Text style={styles.value}>SZB</Text>
+ <Text style={styles.value}>{monthText}</Text>
  <Text style={styles.value}> Captian wan Muzairul Wan Mahazir HEAD OF FLIGHT OPERATIONS</Text>
    </View>
    </View>

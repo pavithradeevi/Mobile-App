@@ -17,6 +17,13 @@ export const initializeDatabaseStructure = async () => {
       TABLE_VALUES.roster_details,
     );
     await createTable(TABLE_NAMES.roster_details, roster_details);
+
+    // -------------------------------------------------------------------------------------------------
+    const navdata_details = await TableValueGenerator(
+      TABLE_VALUES.navdata_details,
+    );
+    await createTable(TABLE_NAMES.navdata_details, navdata_details);
+    
   } catch (error) {
     console.log(error);
   }

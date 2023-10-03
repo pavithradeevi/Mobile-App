@@ -168,6 +168,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Ubuntu-Medium',
     color: 'white',
+   
+    alignItems:'center',
+    marginLeft:30
   },
   img: {
     width: '100%',

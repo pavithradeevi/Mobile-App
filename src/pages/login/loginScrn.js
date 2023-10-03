@@ -28,6 +28,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import { Alert } from 'react-native';
 import { getRosterDetailsApi } from '../../api/roster/rosterDetailsApi';
+import { openDatabase } from 'react-native-sqlite-storage';
 
 
 const backgroundImg = require('../../assets/images/flightimage.png');
@@ -53,21 +54,29 @@ const SignInScrn = props => {
   const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 
-  
+ 
 
   const LoginFun = async () => {
-    if (!userName || userName.length < 3)
-      return ToastMsg('Enter a valid username');
-    if (!password || password.length < 3)
-      return ToastMsg('Enter a valid password');
+    if (!userName || userName.length < 3) {
+      Alert.alert('Enter Username', 'Please enter a valid username.');
+      return;
+    }
+    if (!password || password.length < 3) {
+      Alert.alert('Enter Password', 'Please enter a valid password.');
+      return;
+    }
     setloading(true);
-  
+
     const netInfoState = await NetInfo.fetch();
     if (!netInfoState.isConnected) {
-      Alert.alert('OFFLINE !', 'You are currently offline. Please connect to the internet.');
+      Alert.alert(
+        'OFFLINE !',
+        'You are currently offline. Please connect to the internet.'
+      );
       setloading(false);
       return;
-    } 
+    }
+  
     try {
       await Dispatch(loginAction(userName, password));
       await Dispatch(addPersonalDetailsReducer(userName));
@@ -76,6 +85,7 @@ const SignInScrn = props => {
     }
     setloading(false);
   };
+  
 
  
   const signUpFun = async () => {
@@ -87,7 +97,7 @@ const SignInScrn = props => {
       return ToastMsg('Enter vaild email ID');
     setloading(true);
     try {
-      // await Dispatch(loginAction(userName, password));
+      await Dispatch(loginAction(userName, password));
       console.log('login su');
     } catch (e) {
       // saving error

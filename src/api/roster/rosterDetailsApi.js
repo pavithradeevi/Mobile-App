@@ -4,14 +4,48 @@ import {apiKeys} from '../endPoints';
 import { AddDataToTable } from '../../db/addDataToTable';
 import { deleteAllData } from '../../db/deleteTable';
 
+
+
+
+
 export const getRosterDetailsApi = async () => {
+
+
   try {
     const empCode = await AsyncStorage.getItem('@userId');
     // const empCode='ishan';
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; 
+    const currentYear = currentDate.getFullYear();
+
+    // Calculate the first date of the current month
+    const firstDateOfMonth = new Date(currentYear, currentMonth - 1, 1);
+    const formattedFirstDate = `${String(firstDateOfMonth.getDate()).padStart(2, '0')}/${String(
+      currentMonth
+    ).padStart(2, '0')}/${currentYear}`;
+
+    console.log("First date of current month:", formattedFirstDate);
+
+    // Calculate the last date of the last month
+    const firstDateOfLastMonth = new Date(currentYear, currentMonth - 2, 1);
+    const formattedFirstDateOfLastMonth = `${String(firstDateOfLastMonth.getMonth() + 1).padStart(2, '0')}/${String(
+      firstDateOfLastMonth.getDate()
+    ).padStart(2, '0')}/${currentYear}`;
+
+    console.log("First date of last month:", formattedFirstDateOfLastMonth);
+
+    // Calculate the first date of the next month
+    const lastDateOfNextMonth = new Date(currentYear, currentMonth + 1, 0);
+    const formattedLastDateOfNextMonth = `${String(currentMonth + 1).padStart(2, '0')}/${String(
+      lastDateOfNextMonth.getDate()
+    ).padStart(2, '0')}/${currentYear}`;
+
+    console.log("Last date of next month:", formattedLastDateOfNextMonth);
   
-    const startDate = '07/01/2023';
-    const endDate = '09/30/2023';
-    const modifiedDate = '09/30/2022';
+    const startDate = formattedFirstDateOfLastMonth;
+    const endDate = formattedLastDateOfNextMonth;
+    const modifiedDate = '10/30/2022';
     console.log("api details",
       `${apiKeys.rosterAppDetails}/${empCode}?StartDate=${startDate}&EndDate=${endDate}&ModifiedDate=${modifiedDate}`,
     );
@@ -53,6 +87,7 @@ export const getRosterDetailsApi = async () => {
     AddDataToTable('roster_details',Data)
     console.log(response.data, 'response in getRosterDetailsApi ');
     return {data: Data, message: ''};
+ 
   } catch (error) {
     let err;
     if (error.response) {
@@ -66,4 +101,8 @@ export const getRosterDetailsApi = async () => {
     console.log(err, 'error from LoginRequest');
     throw {error: false, data: '', message: err};
   }
+
+ 
+ 
+    
 };

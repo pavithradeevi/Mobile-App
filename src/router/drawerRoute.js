@@ -1,19 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {CustomeDrawer} from './drawerComp';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import BottomTabRoute from './bottomTabRoute';
 import {Dimensions,BackHandler} from 'react-native';
+import { getRosterDetailsApi } from '../api/roster/rosterDetailsApi';
+
+
 
 const windowWidth = Dimensions.get('window').width;
 
 const Drawer = createDrawerNavigator();
 
 
-
-
 const DrawerRoute = () => {
- 
+getRosterDetailsApi();
 
 
   return (
@@ -27,6 +28,7 @@ const DrawerRoute = () => {
         },
       }}>
       <Drawer.Screen name="bottomTabs" component={BottomTabRoute} />
+      
     </Drawer.Navigator>
   );
 };

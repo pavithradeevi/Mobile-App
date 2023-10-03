@@ -1,43 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import { Switch, View, Modal, Text, Button } from 'react-native';
+import { View, Text, Switch, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import SQLite from 'react-native-sqlite-storage';
 import PushNotification from 'react-native-push-notification';
-import { useNavigation } from '@react-navigation/native';
-import SQLite from 'react-native-sqlite-storage'; 
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const db = SQLite.openDatabase(
   { name: 'CrewportDatabase.db', location: 'default' },
   () => {},
-  error => {
+  (error) => {
     console.error('Error opening database: ', error);
   }
 );
 
-const AlarmToggles = ({ isAlarmEnabled, onToggle }) => {
-  const navigation = useNavigation();
-  const [alarmEnabled, setAlarmEnabled] = useState(isAlarmEnabled);
-  const [flightTime, setFlightTime] = useState(''); 
-  const [flightNos, setFlightNos] = useState(''); 
-  const [flightDate, setFlightDate] = useState(''); 
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    setAlarmEnabled(isAlarmEnabled);
-  }, [isAlarmEnabled]);
 
-  useEffect(() => {
-    PushNotification.configure({
-      onNotification: (notification) => {
-        if (notification.userInteraction) {
-          if (notification.data && notification.data.screen) {
-            const screenName = notification.data.screen;
-            navigation.navigate(screenName);
-          }
-        }
-      },
+const Alarm = ({ isAlarmEnabled, onToggle }) => {
+  const [flightTime, setFlightTime] = useState('');
+  const [flightNos, setFlightNos] = useState('');
+  const [isToggleOn, setIsToggleOn] = useState(isAlarmEnabled);
+  const [flightsdate, setFlightsdate] = useState('');
+  const [isFutureTime, setIsFutureTime] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [notificationTriggered, setNotificationTriggered] = useState(false);
+  const [selectedNotificationTime, setSelectedNotificationTime] = useState(null);
+
+  const createChannels = () => {
+    PushNotification.createChannel({
+      channelId: 'Crew-Port',
+      channelName: 'Crewport Channel',
     });
+    console.log('channel created');
+  };
+
+  useEffect(() => {
+    fetchFlightTime();
+    createChannels();
+
+    // Schedule the notification when the component mounts
+    if (isToggleOn && flightTime) {
+      const [flightHours, flightMinutes] = flightTime.split(':').map(Number);
+
+      let newHours = flightHours - 2;
+      if (newHours < 0) {
+        newHours += 24;
+      }
+
+      const newTime = `${newHours.toString().padStart(2, '0')}:${flightMinutes.toString().padStart(2, '0')}`;
+
+      scheduleNotification(newTime, flightNos);
+    }
   }, []);
+  useEffect(() => {
+    if (flightTime) {
+      const [alarmHours, alarmMinutes] = flightTime.split(':').map(Number);
+      const now = new Date();
+      const alarmDate = new Date(flightsdate);
+      alarmDate.setHours(alarmHours);
+      alarmDate.setMinutes(alarmMinutes);
+      alarmDate.setSeconds(0);
+
+      setIsFutureTime(now < alarmDate);
+    }
+  }, [flightTime, flightsdate]);
+
+  const handleTimeSelection = () => {
+    setShowTimePicker(true);
+  };
+
+  const handleTimePickerChange = (event, selected) => {
+    if (event.type === 'set' && selected) {
+      setSelectedNotificationTime(new Date(selected));
+    }
+    setShowTimePicker(false);
+  };
+
   const fetchFlightTime = () => {
-    db.transaction(tx => {
+    db.transaction((tx) => {
       tx.executeSql(
         `SELECT crewCode, crewDesig, flightDate, patternNo, flightNo, deptTime, arrTime, startFrom, endsAt,
         flightFrom, flightTo, restPeriod, aircraftType, patternStTime, patternEndTime, id, isVoilated, voilationReason,
@@ -46,16 +85,14 @@ const AlarmToggles = ({ isAlarmEnabled, onToggle }) => {
         (_, { rows }) => {
           if (rows.length > 0) {
             const flightDateStr = rows.item(0).patternStTime;
-            console.log("Flight Date:", flightDateStr);
-            const flightno = rows.item(0).flightNo;
             const flightdate = rows.item(0).flightDate;
-            const flightdates = flightdate.substring(0, 10).split('-').reverse().join('/');
-            const flightTime = flightDateStr.substring(11, 16);  
-            console.log("Flight Time:", flightTime);
-  
+            const flight = flightdate.substring(5, 10);
+            const flightno = rows.item(0).flightNo;
+            const flightTime = flightDateStr.substring(11, 16);
+
             setFlightTime(flightTime);
             setFlightNos(flightno);
-            setFlightDate(flightdates);
+            setFlightsdate(flight);
           }
         },
         (_, error) => {
@@ -65,58 +102,114 @@ const AlarmToggles = ({ isAlarmEnabled, onToggle }) => {
     });
   };
 
-  useEffect(() => {
-    fetchFlightTime(); // Fetch the flightTime when the component mounts
-  }, []);
+  const scheduleNotification = (time) => {
+    try {
+      const now = new Date();
+      const selectedHours = time.getHours();
+      const selectedMinutes = time.getMinutes();
 
-  const handleToggle = () => {
-    const newAlarmState = !alarmEnabled;
-    setAlarmEnabled(newAlarmState);
-  
-    if (newAlarmState) {
-      // Create a channel without a custom sound
-      PushNotification.createChannel({
-        channelId: 'YOUR_CHANNEL_ID',
-        channelName: 'YOUR_CHANNEL_NAME',
-        channelDescription: 'YOUR_CHANNEL_DESCRIPTION',
-        importance: 4,
-        vibrate: true,
-      });
-  
-      let notificationMessage = `Today You have ${flightNos} at ${flightTime}!`;
-  
-      if (flightNos.startsWith('LEAVE')) {
-        notificationMessage = `Today you have Leave on ${flightDate}!`;
+      const notificationDate = new Date();
+      notificationDate.setHours(selectedHours);
+      notificationDate.setMinutes(selectedMinutes);
+      notificationDate.setSeconds(0);
+
+      if (now < notificationDate) {
+        console.log('Scheduling notification for', notificationDate);
+
+        PushNotification.localNotificationSchedule({
+          channelId: 'check-in-reminders',
+          message: `Today You have a ${flightNos} at ${selectedHours}:${selectedMinutes}`,
+          date: notificationDate,
+          onNotification: () => {
+            console.log('Notification clicked');
+            setNotificationTriggered(true);
+          },
+        });
+      } else {
+        console.log('Notification not triggered. The time is in the past.');
       }
-  
-      const notificationOptions = {
-        channelId: 'YOUR_CHANNEL_ID',
-        title: 'Alarm Enabled',
-        message: notificationMessage,
-        playSound: true,
-        data: {
-          screen: 'Home',
-        },
-      };
-  
-      PushNotification.localNotification(notificationOptions);
-    }
-  
-    // Call the onToggle function if provided
-    if (onToggle) {
-      onToggle(newAlarmState);
+    } catch (error) {
+      console.error('Error scheduling notifications:', error);
     }
   };
-  
+
+  const handleToggleChange = (value) => {
+    setIsToggleOn(value);
+
+    if (value && !showTimePicker) {
+      const [alarmHours, alarmMinutes] = flightTime.split(':').map(Number);
+      const newHours = alarmHours - 2 >= 0 ? alarmHours - 2 : alarmHours - 2 + 24;
+      const newTime = new Date();
+      newTime.setHours(newHours, alarmMinutes);
+      setSelectedNotificationTime(newTime);
+    } else {
+      PushNotification.cancelAllLocalNotifications();
+      setNotificationTriggered(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedNotificationTime) {
+      scheduleNotification(selectedNotificationTime);
+    }
+  }, [selectedNotificationTime]);
+
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Text>{flightDate}{flightTime}</Text>
-      <Switch value={alarmEnabled} onValueChange={handleToggle} />
+    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+      <Text style={[styles.flightText, isFutureTime ? styles.boldText : styles.normalText]}>
+        Flight Time: {flightTime}
+      </Text>
+
+      {selectedNotificationTime && (
+        <Text style={styles.notificationText}>
+          Selected Time: {selectedNotificationTime.getHours()}:
+          {selectedNotificationTime.getMinutes()}
+        </Text>
+      )}
+
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Switch
+          value={isToggleOn}
+          onValueChange={(value) => {
+            if (notificationTriggered) {
+              setIsToggleOn(false);
+            } else {
+              handleToggleChange(value);
+            }
+          }}
+        />
+
+        <TouchableOpacity onPress={handleTimeSelection}>
+          <Text>Select Time</Text>
+        </TouchableOpacity>
+
+        {showTimePicker && (
+          <DateTimePicker
+            value={selectedTime}
+            mode="time"
+            is24Hour={true}
+            display={Platform.OS === 'ios' ? 'spinner' : 'clock'}
+            onChange={handleTimePickerChange}
+          />
+        )}
+      </View>
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  flightText: {
+    // Your common text styles here
+  },
+  notificationText: {
+    // Your styles for the notification time text here
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  normalText: {
+    fontWeight: 'normal',
+  },
+});
 
-
-
-export default AlarmToggles;
+export default Alarm;

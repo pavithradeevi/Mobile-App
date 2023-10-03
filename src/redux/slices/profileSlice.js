@@ -41,7 +41,7 @@ export const {
   addProfessionalDetails,
   updatePersonalDetails,
   updateProfessionalDetails,
-  clearPersonalDetails, // Add the clearPersonalDetails action
+  clearPersonalDetails, 
   loading,
 } = ProfileSlice.actions;
 

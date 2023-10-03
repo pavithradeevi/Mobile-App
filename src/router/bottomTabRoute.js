@@ -15,9 +15,12 @@ import {
 import { getRosterDetailsApi } from '../api/roster/rosterDetailsApi';
 
 
+
 const Tab = createBottomTabNavigator();
+getRosterDetailsApi();
 
 const BottomTabRoute = props => {
+
   return (
     <Tab.Navigator
       tabBar={tabProps => <BottomNavTab {...tabProps} />}
@@ -25,6 +28,8 @@ const BottomTabRoute = props => {
         header: headerProps => <TopNavBar {...props} />,
         tabBarActiveTintColor: 'red',
       }}>
+
+      
      
       
       <Tab.Screen
@@ -45,7 +50,28 @@ const BottomTabRoute = props => {
         component={HomeScrn}
       />
 
-       <Tab.Screen
+      <Tab.Screen
+      options={{
+        tabBarLabel: '',
+        tabBarIcon: ({color, focused}) => (
+          
+          <Ionicons
+            name={focused ? 'ios-calendar' : 'calendar-outline'}
+            color={color}
+            size={25}
+            style={{ marginTop: 15 }}
+          />
+        ),
+      }}
+      
+      name="calender"
+      component={CalenderScrn}     
+    />
+
+      
+
+      {/* 
+      <Tab.Screen
         options={{
           tabBarLabel: '',
           tabBarIcon: ({color, focused}) => (
@@ -57,6 +83,8 @@ const BottomTabRoute = props => {
         name="Flights"
         component={FlightScrn}
       />
+    
+    */} 
       
       {/* <Tab.Screen
         options={{
@@ -90,24 +118,7 @@ const BottomTabRoute = props => {
     
       
       
-      <Tab.Screen
-        options={{
-          tabBarLabel: '',
-          tabBarIcon: ({color, focused}) => (
-            
-            <Ionicons
-              name={focused ? 'ios-calendar' : 'calendar-outline'}
-              color={color}
-              size={25}
-              style={{ marginTop: 15 }}
-            />
-          ),
-        }}
-        
-        name="calender"
-        component={CalenderScrn}
-        
-      />
+      
 
       <Tab.Screen
         options={{

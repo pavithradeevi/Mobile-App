@@ -18,6 +18,7 @@ import { useContext } from 'react';
 import { Switch } from 'react-native';
 import SettingScrn from '../settings/settingScrn';
 import ToggleSwitch from './switchMode';
+import { openDatabase } from 'react-native-sqlite-storage';
 
 const Page = ({loading,onModeChange}) => {
     const { showMst } = useContext(AppContext);
@@ -33,8 +34,6 @@ const Page = ({loading,onModeChange}) => {
       getRosterDetailsApi();
     }, []);
 
-    
-  
     let backHandlerClickCount = 0;
   
     const handleBackButton = () => {

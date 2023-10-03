@@ -99,6 +99,12 @@ const options = [
     routeName: 'reportIn',
   },
   {
+    label: 'Reporting Out',
+    inconName: 'create',
+    inconOutlineName: 'create-outline',
+    routeName: 'reportOut',
+  },
+  {
     label: 'FDTL',
     inconName: 'flame',
     inconOutlineName: 'flame-outline',

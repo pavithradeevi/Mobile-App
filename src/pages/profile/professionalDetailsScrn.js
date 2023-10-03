@@ -134,20 +134,20 @@ const styles = StyleSheet.create({
   },
   
   cell: {
-    width: 290,
+    width: 270,
   },
   cells:{
-	width:290,
+	width:270,
 	fontSize:18
 
   },
   expiresCell: {
-	marginLeft:20,
+	
 	justifyContent:'flex-end',
 	alignItems:'flex-end'
   },
   expiresCells:{
-	marginLeft:20,
+	
 	justifyContent:'flex-end',
 	alignItems:'flex-end'
   },

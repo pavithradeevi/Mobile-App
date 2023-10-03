@@ -50,7 +50,8 @@ export const loginAction = (name, password) => {
     } catch (error) {
       console.log(error, 'error in  loginAction');
       Dispatch(loading(false));
-      ToastMsg(error.message);
+      // ToastMsg(error.message);
+      alert(error.message)
       throw {error: true};
     }
   };

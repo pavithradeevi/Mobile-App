@@ -20,7 +20,9 @@ import { McScrn } from '../pages/leave';
 import {PersonalDetailsScrn, ProfessionalDetailsScrn} from '../pages/profile';
 import DrawerRoute from './drawerRoute';
 import LeaveTabRoute from './leaveTabRoute';
-import RosterScrn from '../pages/roster';
+
+import CheckInTmw from '../pages/checkIn/checkintmw';
+import ReportoutTmw from '../pages/report/reportOutTmw';
 
 
 
@@ -45,6 +47,24 @@ const StackRoute = props => {
       component={CheckInScrn}        
     />
     <Stack.Screen
+    options={{
+      headerShown: true}}
+    name="reportIntmw"
+    component={CheckInTmw}        
+  />
+    <Stack.Screen
+    options={{
+      headerShown: true}}
+    name="reportOut"
+    component={ReportScrn}        
+  />
+  <Stack.Screen
+  options={{
+    headerShown: true}}
+  name="reportouttmw"
+  component={ReportoutTmw}        
+/>
+    <Stack.Screen
       options={{
         title:'Check In',
         headerShown: true}}
@@ -57,6 +77,12 @@ const StackRoute = props => {
         name="login"
         component={LoginScrn}
       />
+
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="empty"
+        component={DrawerRoute}
+      />
       
 
       <Stack.Screen
@@ -64,6 +90,14 @@ const StackRoute = props => {
         name="initial"
         component={DrawerRoute}
       />
+      {/*
+       <Stack.Screen
+        options={{headerShown: false}}
+        name="initial"
+        component={DrawerRoute}
+      />
+    
+    */}
       <Stack.Screen
         options={{
           title: 'Notifications',
@@ -88,15 +122,7 @@ const StackRoute = props => {
         name="edocs"
         component={EdocsScrn}
       />
-      <Stack.Screen
-      options={{
-        title: 'Roster',
-        headerShown: true,
-        
-      }}
-      name="roster"
-      component={RosterScrn}
-    />
+    
       <Stack.Screen
         options={{
           title: 'Gallery',
@@ -169,7 +195,7 @@ const StackRoute = props => {
       />
       <Stack.Screen
         options={{
-          title: 'Professional Details',
+          title:'Professional Details',
           headerTintColor: colors.white,
           headerStyle: {
             backgroundColor: colors.primary,

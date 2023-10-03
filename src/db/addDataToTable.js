@@ -26,6 +26,7 @@ export const AddDataToTable =async (tableName, tableData) => {
 
     const values = Object.values(tableData);
     return db.executeSql(insertQuery, values);
+    
   } catch (error) {
     console.log(error, 'error in AddDataToTable');
   }

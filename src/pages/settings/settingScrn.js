@@ -1,31 +1,20 @@
-
-
-
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Block, PageHeader, Text } from '../../components';
 import { AppContext } from '../../appContext';
 import ToggleSwitch from '../home/switchMode';
-import PushNotification from 'react-native-push-notification';
 import AlarmToggles from '../alarm';
-import Alarm from '../alarm/notify/alarm';
+import AlarmUTC from '../alarm/alarmutc';
 
 
 
-
-const SettingScrn = ({selectedLocation,onModeChange}) => {
+const SettingScrn = () => {
   const { showMst, toggleTimezone } = useContext(AppContext);
-  const [alarmToggleText, setAlarmToggleText] = useState('OFF'); 
-
-  const handleToggleTextChange = (newText) => {
-    setAlarmToggleText(newText);
-  };
-
-  
- 
+  const [selectedTimezone, setSelectedTimezone] = useState('MST'); // Default to MST
 
   const handleToggle = () => {
     toggleTimezone();
+    setSelectedTimezone(showMst ? 'MST' : 'UTC');
   };
 
   return (
@@ -37,16 +26,13 @@ const SettingScrn = ({selectedLocation,onModeChange}) => {
       <View style={styles.toggleContainer}>
         <Text style={styles.boldText}>Select TimeZone:</Text>
         <Text style={styles.normalText}>{showMst ? 'MST' : 'UTC'}</Text>
-        
-        <ToggleSwitch/>
-        </View>
-        <View style={styles.toggleContainer}>
-        <Text style={styles.boldText}>Automatic Alarm:</Text>
-        <AlarmToggles/>
-        </View>
-        <Alarm/>
-       
-        
+        <ToggleSwitch onToggle={handleToggle} />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.boldText}>Alarm:</Text>
+        {showMst  ? <AlarmToggles /> : <AlarmUTC />}
+      </View>
+     
     </Block>
   );
 };
@@ -69,7 +55,3 @@ const styles = StyleSheet.create({
 });
 
 export default SettingScrn;
-
-
-
-

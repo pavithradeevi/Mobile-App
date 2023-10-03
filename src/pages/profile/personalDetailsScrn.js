@@ -15,20 +15,19 @@ const PersonalDetailsScrn = () => {
 
   // console.log(profile?.data?.personal);
   useEffect(() => {
-    
     Dispatch(addPersonalDetailsReducer(auth?.data?.userName));
   }, []);
+
   useEffect(() => {
     let profileData = profile?.data?.personal || null;
-   
-    if (typeof profileData === 'object' && profileData !== null) {
+    if (profileData) {
       delete profileData.id;
       delete profileData.modifiedDate;
       delete profileData.createdDate;
       setpersonalDetails(Object.entries(profileData));
     }
-    
   }, [profile]);
+  
   return (
     <Block container white padding>
       <PageHeader>
@@ -46,14 +45,9 @@ const PersonalDetailsScrn = () => {
               <Text p gary capitalize>
                 {item[0].replace(/[A-Z]/g, ' $&').trim()}
               </Text>
-              {typeof item[1] === 'object' ? (
-                Object.entries(item[1]).map(([key, value]) => (
-                  <Text key={key}>{`${key}: ${value}`}</Text>
-                ))
-              ) : (
-                <Text h5 black>{item[1]}</Text>
-              )}
-              
+              <Text h5 black>
+                {item[1]}
+              </Text>
             </Block>
           ))}
       </Block>
